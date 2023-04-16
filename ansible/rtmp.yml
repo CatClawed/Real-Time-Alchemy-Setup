@@ -1,0 +1,56 @@
+- hosts: all
+  name: configuration play
+  user: ubuntu
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Show host's ip
+      debug:
+        msg: "{{ ansible_ssh_host }}"
+    - name: Update package cache
+      become: yes
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: yes
+
+    - name: Add Docker apt key.
+      become: yes
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+        dest: /etc/apt/trusted.gpg.d/docker.asc
+        mode: '0644'
+        force: true
+      register: add_repository_key
+
+    - name: Add Docker repository.
+      become: yes
+      apt_repository:
+        repo: "deb [arch={{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+        state: present
+        update_cache: true
+
+    - name: Install Docker
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+          - docker-compose
+        state: latest
+        update_cache: true
+    
+    - name: Copy setup
+      become: yes
+      ansible.builtin.copy:
+        src: files/setup_rtmpie.sh
+        dest: /opt/rtmpie/
+
+    - name: Start RTMPie
+      become: yes
+      shell: |
+        chdir=/opt/rtmpie
+        sudo bash setup_rtmpie.sh {{ ansible_ssh_host }}
+        sudo docker-compose pull && docker-compose up -d
