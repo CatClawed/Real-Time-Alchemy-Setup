@@ -14,3 +14,5 @@ The machines:
 Resources:
 * [Use single SSH key pair for multiple regions](https://repost.aws/knowledge-center/ec2-ssh-key-pair-regions)
 * [RTMPie](https://github.com/ngrie/rtmpie), project used to setup RTMP servers.
+
+After initial setup, change password on ubuntu user for OBS machine. Not my most secure setup, but gets the job done. Probably manually edit the security group to tighten the security... I'll call it good enough with that, can't be bothered to set it all up in terraform.

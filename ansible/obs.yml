@@ -1,0 +1,63 @@
+- hosts: all
+  name: configuration play
+  user: ubuntu
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Update package cache
+      become: yes
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: yes
+
+    - name: Add OBS repo
+      ansible.builtin.apt_repository:
+        repo: ppa:obsproject/obs-studio
+
+    - name: Install necessasry packages
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - v4l2loopback-dkms
+          - xrdp
+          - obs-studio
+          - snapd
+          - xfce4
+          - lightdm
+          - linux-aws
+        state: latest
+        update_cache: true
+
+    - name: Install discord
+      become: yes
+      ansible.builtin.command: "sudo snap install discord"
+
+    - name: Reboot
+      ansible.builtin.reboot:
+
+    - name: GPU driver install
+      become: yes
+      shell: |
+        sudo apt-get install -y unzip gcc make linux-headers-$(uname -r)
+        cat << EOF | sudo tee --append /etc/modprobe.d/blacklist.conf
+        blacklist vga16fb
+        blacklist nouveau
+        blacklist rivafb
+        blacklist nvidiafb
+        blacklist rivatv
+        EOF
+        sudo echo 'GRUB_CMDLINE_LINUX="rdblacklist=nouveau"' >> /etc/default/grub
+        sudo update-grub
+        aws s3 cp --recursive s3://nvidia-gaming/linux/latest/ .
+        unzip vGPUSW-*vGaming-Linux-Guest-Drivers.zip -d nvidia-drivers
+        chmod +x nvidia-drivers/Linux/NVIDIA-Linux-x86_64*-grid.run
+        sudo ./nvidia-drivers/Linux/NVIDIA-Linux-x86_64*.run  -q -a -n -X -s
+        cat << EOF | sudo tee -a /etc/nvidia/gridd.conf
+        vGamingMarketplace=2
+        EOF
+        sudo curl -o /etc/nvidia/GridSwCert.txt "https://nvidia-gaming.s3.amazonaws.com/GridSwCert-Archive/GridSwCertLinux_2021_10_2.cert"
+        sudo touch /etc/modprobe.d/nvidia.conf
+        echo "options nvidia NVreg_EnableGpuFirmware=0" | sudo tee --append /etc/modprobe.d/nvidia.conf
+
+    - name: Reboot
+      ansible.builtin.reboot:

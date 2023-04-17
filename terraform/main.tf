@@ -1,3 +1,5 @@
+/*
+
 module "rtmp-california" {
   source = "./modules/ec2"
 
@@ -20,4 +22,21 @@ output "rtmp-california-ip" {
 
 output "rtmp-tokyo-ip" {
   value = module.rtmp-tokyo.ec2_ip
+}
+
+*/
+
+module "obs" {
+  source        = "./modules/ec2"
+  machine_use   = "OBS"
+  instance_type = "g4dn.xlarge"
+  name          = "obs-ubuntu"
+
+  providers = {
+    aws = aws.california
+  }
+}
+
+output "obs-ip" {
+  value = module.obs.ec2_ip
 }

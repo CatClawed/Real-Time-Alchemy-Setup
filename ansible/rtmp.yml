@@ -4,9 +4,6 @@
   become: yes
   gather_facts: true
   tasks:
-    - name: Show host's ip
-      debug:
-        msg: "{{ ansible_ssh_host }}"
     - name: Update package cache
       become: yes
       ansible.builtin.apt:
