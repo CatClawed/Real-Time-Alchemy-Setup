@@ -10,7 +10,7 @@ Furthermore, as this is a cloud setup, Discord was necessary for host audio betw
 
 To answer the "why did you run OBS in the cloud" question: I didn't want to sacrifice a machine, and also my internet likes to randomly die for a few minutes sometimes. AWS has incredible internet, you gotta give 'em that. There was also only one person running this event, ultimately, but it would be very easy to organize shifts for larger teams in longer marathons.
 
-Funw weird issues: running RTMP in OBS without using it for too long (happens during setup) can introduce horrible audio (heard on stream only!). Making a new RTMP stream fixes this.
+Fun weird issues: running RTMP in OBS without using it for too long (happens during setup) can introduce horrible audio (heard on stream only!). Making a new RTMP stream fixes this.
 
 The machines:
 * However many t2.micro RTMP servers I want. The point is to be close-ish to the runner, specs barely matter.
